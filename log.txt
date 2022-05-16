@@ -1,0 +1,21 @@
+***Starting server on port 56791 ***
+Loading net-file from 'net.net.xml' ... done (5ms).
+Loading done.
+Simulation started with time: 0.00
+Simulation ended at time: 205.80
+Performance: 
+ Duration: 8.82s
+ Real time factor: 23.328
+ UPS: 35107.005214
+Vehicles: 
+ Inserted: 203
+ Running: 203
+ Waiting: 0
+Statistics (avg):
+ RouteLength: 0.00
+ Speed: 0.00
+ Duration: 0.00
+ WaitingTime: 0.00
+ TimeLoss: 0.00
+ DepartDelay: 0.00
+

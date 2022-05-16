@@ -1,0 +1,1 @@
+{"RADIUS": 250, "PAD": 2.0, "SPEED": 8, "ACCEL": 0.8, "DECCEL": 4.5, "INCREMENTS": 2, "REPS": 2, "GENCARS": 100, "ALGO": "FCFS", "TURNING": true, "CUSTOM_FOLLOW": false}

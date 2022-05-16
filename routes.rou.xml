@@ -1,0 +1,225 @@
+<routes>
+        <vType id="typeCar" accel="0.800000" decel="4.500000" sigma="0.0" length="5" minGap="2.5" speedDev="0" maxSpeed="8.000000" guiShape="passenger"/>
+
+
+        <route id="WE" edges="wc ce" />
+        <route id="WN" edges="wc cn" />
+        <route id="WS" edges="wc cs" />
+
+        <route id="EW" edges="ec cw" />
+        <route id="EN" edges="ec cn" />
+        <route id="ES" edges="ec cs" />
+
+        <route id="NS" edges="nc cs" />
+        <route id="NE" edges="nc ce" />
+        <route id="NW" edges="nc cw" />
+
+        <route id="SN" edges="sc cn" />
+        <route id="SE" edges="sc ce" />
+        <route id="SW" edges="sc cw" />
+
+        
+    <vehicle id="WE_0" type="typeCar" route="WE" depart="0" departSpeed="8.000000"/>
+    <vehicle id="EW_1" type="typeCar" route="EW" depart="0" departSpeed="8.000000"/>
+    <vehicle id="EN_2" type="typeCar" route="EN" depart="0" departSpeed="8.000000"/>
+    <vehicle id="NS_3" type="typeCar" route="NS" depart="1" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_4" type="typeCar" route="WE" depart="2" departSpeed="8.000000"/>
+    <vehicle id="EN_5" type="typeCar" route="EN" depart="2" departSpeed="8.000000"/>
+    <vehicle id="ES_6" type="typeCar" route="ES" depart="2" departSpeed="8.000000"/>
+    <vehicle id="NS_7" type="typeCar" route="NS" depart="2" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_8" type="typeCar" route="WE" depart="3" departSpeed="8.000000"/>
+    <vehicle id="WN_9" type="typeCar" route="WN" depart="3" departSpeed="8.000000"/>
+    <vehicle id="WN_10" type="typeCar" route="WN" depart="4" departSpeed="8.000000"/>
+    <vehicle id="EW_11" type="typeCar" route="EW" depart="4" departSpeed="8.000000"/>
+    <vehicle id="SE_12" type="typeCar" route="SE" depart="4" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_13" type="typeCar" route="WN" depart="5" departSpeed="8.000000"/>
+    <vehicle id="EW_14" type="typeCar" route="EW" depart="5" departSpeed="8.000000"/>
+    <vehicle id="EN_15" type="typeCar" route="EN" depart="5" departSpeed="8.000000"/>
+    <vehicle id="EN_16" type="typeCar" route="EN" depart="6" departSpeed="8.000000"/>
+    <vehicle id="SN_17" type="typeCar" route="SN" depart="6" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_18" type="typeCar" route="WN" depart="7" departSpeed="8.000000"/>
+    <vehicle id="WS_19" type="typeCar" route="WS" depart="8" departSpeed="8.000000"/>
+    <vehicle id="EN_20" type="typeCar" route="EN" depart="8" departSpeed="8.000000"/>
+    <vehicle id="SN_21" type="typeCar" route="SN" depart="9" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NE_22" type="typeCar" route="NE" depart="10" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_23" type="typeCar" route="WN" depart="11" departSpeed="8.000000"/>
+    <vehicle id="SN_24" type="typeCar" route="SN" depart="11" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EW_25" type="typeCar" route="EW" depart="12" departSpeed="8.000000"/>
+    <vehicle id="NS_26" type="typeCar" route="NS" depart="12" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WS_27" type="typeCar" route="WS" depart="13" departSpeed="8.000000"/>
+    <vehicle id="EN_28" type="typeCar" route="EN" depart="13" departSpeed="8.000000"/>
+    <vehicle id="EW_29" type="typeCar" route="EW" depart="14" departSpeed="8.000000"/>
+    <vehicle id="NW_30" type="typeCar" route="NW" depart="14" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SW_31" type="typeCar" route="SW" depart="14" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NE_32" type="typeCar" route="NE" depart="15" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NW_33" type="typeCar" route="NW" depart="15" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_34" type="typeCar" route="SN" depart="15" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_35" type="typeCar" route="NS" depart="16" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_36" type="typeCar" route="WN" depart="17" departSpeed="8.000000"/>
+    <vehicle id="EW_37" type="typeCar" route="EW" depart="17" departSpeed="8.000000"/>
+    <vehicle id="EN_38" type="typeCar" route="EN" depart="17" departSpeed="8.000000"/>
+    <vehicle id="NS_39" type="typeCar" route="NS" depart="17" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NE_40" type="typeCar" route="NE" depart="17" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SE_41" type="typeCar" route="SE" depart="17" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SW_42" type="typeCar" route="SW" depart="17" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EN_43" type="typeCar" route="EN" depart="18" departSpeed="8.000000"/>
+    <vehicle id="NS_44" type="typeCar" route="NS" depart="18" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EW_45" type="typeCar" route="EW" depart="19" departSpeed="8.000000"/>
+    <vehicle id="ES_46" type="typeCar" route="ES" depart="19" departSpeed="8.000000"/>
+    <vehicle id="NE_47" type="typeCar" route="NE" depart="19" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WS_48" type="typeCar" route="WS" depart="20" departSpeed="8.000000"/>
+    <vehicle id="NS_49" type="typeCar" route="NS" depart="20" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_50" type="typeCar" route="SN" depart="20" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SW_51" type="typeCar" route="SW" depart="20" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_52" type="typeCar" route="WE" depart="21" departSpeed="8.000000"/>
+    <vehicle id="WN_53" type="typeCar" route="WN" depart="21" departSpeed="8.000000"/>
+    <vehicle id="EW_54" type="typeCar" route="EW" depart="22" departSpeed="8.000000"/>
+    <vehicle id="ES_55" type="typeCar" route="ES" depart="22" departSpeed="8.000000"/>
+    <vehicle id="NS_56" type="typeCar" route="NS" depart="22" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_57" type="typeCar" route="ES" depart="24" departSpeed="8.000000"/>
+    <vehicle id="NS_58" type="typeCar" route="NS" depart="24" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_59" type="typeCar" route="NS" depart="25" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_60" type="typeCar" route="SN" depart="25" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_61" type="typeCar" route="NS" depart="27" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_62" type="typeCar" route="WE" depart="28" departSpeed="8.000000"/>
+    <vehicle id="SN_63" type="typeCar" route="SN" depart="28" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_64" type="typeCar" route="WE" depart="29" departSpeed="8.000000"/>
+    <vehicle id="NS_65" type="typeCar" route="NS" depart="29" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EW_66" type="typeCar" route="EW" depart="30" departSpeed="8.000000"/>
+    <vehicle id="ES_67" type="typeCar" route="ES" depart="30" departSpeed="8.000000"/>
+    <vehicle id="SN_68" type="typeCar" route="SN" depart="30" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_69" type="typeCar" route="SN" depart="31" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_70" type="typeCar" route="WE" depart="32" departSpeed="8.000000"/>
+    <vehicle id="SN_71" type="typeCar" route="SN" depart="32" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SW_72" type="typeCar" route="SW" depart="32" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_73" type="typeCar" route="WE" depart="33" departSpeed="8.000000"/>
+    <vehicle id="WS_74" type="typeCar" route="WS" depart="34" departSpeed="8.000000"/>
+    <vehicle id="EW_75" type="typeCar" route="EW" depart="34" departSpeed="8.000000"/>
+    <vehicle id="WE_76" type="typeCar" route="WE" depart="35" departSpeed="8.000000"/>
+    <vehicle id="WN_77" type="typeCar" route="WN" depart="35" departSpeed="8.000000"/>
+    <vehicle id="ES_78" type="typeCar" route="ES" depart="35" departSpeed="8.000000"/>
+    <vehicle id="SE_79" type="typeCar" route="SE" depart="35" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_80" type="typeCar" route="SN" depart="36" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EN_81" type="typeCar" route="EN" depart="37" departSpeed="8.000000"/>
+    <vehicle id="NS_82" type="typeCar" route="NS" depart="37" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_83" type="typeCar" route="SN" depart="37" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SE_84" type="typeCar" route="SE" depart="37" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_85" type="typeCar" route="WE" depart="38" departSpeed="8.000000"/>
+    <vehicle id="WN_86" type="typeCar" route="WN" depart="38" departSpeed="8.000000"/>
+    <vehicle id="EW_87" type="typeCar" route="EW" depart="38" departSpeed="8.000000"/>
+    <vehicle id="WN_88" type="typeCar" route="WN" depart="39" departSpeed="8.000000"/>
+    <vehicle id="EW_89" type="typeCar" route="EW" depart="39" departSpeed="8.000000"/>
+    <vehicle id="NW_90" type="typeCar" route="NW" depart="39" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_91" type="typeCar" route="WN" depart="40" departSpeed="8.000000"/>
+    <vehicle id="WE_92" type="typeCar" route="WE" depart="41" departSpeed="8.000000"/>
+    <vehicle id="ES_93" type="typeCar" route="ES" depart="41" departSpeed="8.000000"/>
+    <vehicle id="NW_94" type="typeCar" route="NW" depart="41" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_95" type="typeCar" route="WE" depart="42" departSpeed="8.000000"/>
+    <vehicle id="WN_96" type="typeCar" route="WN" depart="42" departSpeed="8.000000"/>
+    <vehicle id="NS_97" type="typeCar" route="NS" depart="42" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_98" type="typeCar" route="SN" depart="42" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EW_99" type="typeCar" route="EW" depart="43" departSpeed="8.000000"/>
+    <vehicle id="SE_100" type="typeCar" route="SE" depart="43" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EN_101" type="typeCar" route="EN" depart="44" departSpeed="8.000000"/>
+    <vehicle id="SN_102" type="typeCar" route="SN" depart="44" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EW_103" type="typeCar" route="EW" depart="45" departSpeed="8.000000"/>
+    <vehicle id="SN_104" type="typeCar" route="SN" depart="45" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_105" type="typeCar" route="NS" depart="46" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_106" type="typeCar" route="SN" depart="46" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_107" type="typeCar" route="WN" depart="47" departSpeed="8.000000"/>
+    <vehicle id="NE_108" type="typeCar" route="NE" depart="47" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_109" type="typeCar" route="NS" depart="48" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NW_110" type="typeCar" route="NW" depart="48" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_111" type="typeCar" route="WE" depart="49" departSpeed="8.000000"/>
+    <vehicle id="ES_112" type="typeCar" route="ES" depart="49" departSpeed="8.000000"/>
+    <vehicle id="NE_113" type="typeCar" route="NE" depart="49" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WS_114" type="typeCar" route="WS" depart="50" departSpeed="8.000000"/>
+    <vehicle id="NW_115" type="typeCar" route="NW" depart="50" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_116" type="typeCar" route="ES" depart="51" departSpeed="8.000000"/>
+    <vehicle id="NE_117" type="typeCar" route="NE" depart="51" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_118" type="typeCar" route="WN" depart="52" departSpeed="8.000000"/>
+    <vehicle id="EW_119" type="typeCar" route="EW" depart="52" departSpeed="8.000000"/>
+    <vehicle id="EN_120" type="typeCar" route="EN" depart="52" departSpeed="8.000000"/>
+    <vehicle id="NS_121" type="typeCar" route="NS" depart="52" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_122" type="typeCar" route="SN" depart="54" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_123" type="typeCar" route="WN" depart="55" departSpeed="8.000000"/>
+    <vehicle id="NS_124" type="typeCar" route="NS" depart="55" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NW_125" type="typeCar" route="NW" depart="55" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_126" type="typeCar" route="ES" depart="56" departSpeed="8.000000"/>
+    <vehicle id="NE_127" type="typeCar" route="NE" depart="56" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EN_128" type="typeCar" route="EN" depart="57" departSpeed="8.000000"/>
+    <vehicle id="SW_129" type="typeCar" route="SW" depart="57" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EN_130" type="typeCar" route="EN" depart="58" departSpeed="8.000000"/>
+    <vehicle id="SN_131" type="typeCar" route="SN" depart="58" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_132" type="typeCar" route="NS" depart="59" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_133" type="typeCar" route="NS" depart="60" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_134" type="typeCar" route="WE" depart="63" departSpeed="8.000000"/>
+    <vehicle id="NE_135" type="typeCar" route="NE" depart="63" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SE_136" type="typeCar" route="SE" depart="63" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EN_137" type="typeCar" route="EN" depart="64" departSpeed="8.000000"/>
+    <vehicle id="EW_138" type="typeCar" route="EW" depart="65" departSpeed="8.000000"/>
+    <vehicle id="EN_139" type="typeCar" route="EN" depart="65" departSpeed="8.000000"/>
+    <vehicle id="ES_140" type="typeCar" route="ES" depart="65" departSpeed="8.000000"/>
+    <vehicle id="NS_141" type="typeCar" route="NS" depart="65" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NE_142" type="typeCar" route="NE" depart="65" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_143" type="typeCar" route="WE" depart="66" departSpeed="8.000000"/>
+    <vehicle id="SE_144" type="typeCar" route="SE" depart="66" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_145" type="typeCar" route="WE" depart="67" departSpeed="8.000000"/>
+    <vehicle id="NS_146" type="typeCar" route="NS" depart="67" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NE_147" type="typeCar" route="NE" depart="67" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_148" type="typeCar" route="WN" depart="68" departSpeed="8.000000"/>
+    <vehicle id="WS_149" type="typeCar" route="WS" depart="68" departSpeed="8.000000"/>
+    <vehicle id="WN_150" type="typeCar" route="WN" depart="69" departSpeed="8.000000"/>
+    <vehicle id="WS_151" type="typeCar" route="WS" depart="69" departSpeed="8.000000"/>
+    <vehicle id="NE_152" type="typeCar" route="NE" depart="70" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_153" type="typeCar" route="SN" depart="70" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SE_154" type="typeCar" route="SE" depart="70" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_155" type="typeCar" route="ES" depart="71" departSpeed="8.000000"/>
+    <vehicle id="NS_156" type="typeCar" route="NS" depart="71" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_157" type="typeCar" route="ES" depart="72" departSpeed="8.000000"/>
+    <vehicle id="WE_158" type="typeCar" route="WE" depart="73" departSpeed="8.000000"/>
+    <vehicle id="EW_159" type="typeCar" route="EW" depart="73" departSpeed="8.000000"/>
+    <vehicle id="SN_160" type="typeCar" route="SN" depart="73" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_161" type="typeCar" route="WE" depart="74" departSpeed="8.000000"/>
+    <vehicle id="EN_162" type="typeCar" route="EN" depart="75" departSpeed="8.000000"/>
+    <vehicle id="NS_163" type="typeCar" route="NS" depart="75" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NS_164" type="typeCar" route="NS" depart="76" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_165" type="typeCar" route="SN" depart="76" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_166" type="typeCar" route="WE" depart="77" departSpeed="8.000000"/>
+    <vehicle id="SE_167" type="typeCar" route="SE" depart="77" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EW_168" type="typeCar" route="EW" depart="79" departSpeed="8.000000"/>
+    <vehicle id="ES_169" type="typeCar" route="ES" depart="79" departSpeed="8.000000"/>
+    <vehicle id="NE_170" type="typeCar" route="NE" depart="80" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_171" type="typeCar" route="SN" depart="80" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NE_172" type="typeCar" route="NE" depart="81" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WS_173" type="typeCar" route="WS" depart="82" departSpeed="8.000000"/>
+    <vehicle id="ES_174" type="typeCar" route="ES" depart="82" departSpeed="8.000000"/>
+    <vehicle id="NS_175" type="typeCar" route="NS" depart="82" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_176" type="typeCar" route="SN" depart="82" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SW_177" type="typeCar" route="SW" depart="82" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_178" type="typeCar" route="WE" depart="84" departSpeed="8.000000"/>
+    <vehicle id="EN_179" type="typeCar" route="EN" depart="84" departSpeed="8.000000"/>
+    <vehicle id="NE_180" type="typeCar" route="NE" depart="84" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SN_181" type="typeCar" route="SN" depart="84" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_182" type="typeCar" route="ES" depart="85" departSpeed="8.000000"/>
+    <vehicle id="SE_183" type="typeCar" route="SE" depart="85" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="EW_184" type="typeCar" route="EW" depart="87" departSpeed="8.000000"/>
+    <vehicle id="SN_185" type="typeCar" route="SN" depart="87" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="NW_186" type="typeCar" route="NW" depart="88" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SE_187" type="typeCar" route="SE" depart="88" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WS_188" type="typeCar" route="WS" depart="89" departSpeed="8.000000"/>
+    <vehicle id="NS_189" type="typeCar" route="NS" depart="89" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SE_190" type="typeCar" route="SE" depart="90" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WN_191" type="typeCar" route="WN" depart="92" departSpeed="8.000000"/>
+    <vehicle id="NS_192" type="typeCar" route="NS" depart="92" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="SW_193" type="typeCar" route="SW" depart="92" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_194" type="typeCar" route="ES" depart="94" departSpeed="8.000000"/>
+    <vehicle id="WE_195" type="typeCar" route="WE" depart="95" departSpeed="8.000000"/>
+    <vehicle id="EW_196" type="typeCar" route="EW" depart="96" departSpeed="8.000000"/>
+    <vehicle id="SN_197" type="typeCar" route="SN" depart="96" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="ES_198" type="typeCar" route="ES" depart="97" departSpeed="8.000000"/>
+    <vehicle id="NE_199" type="typeCar" route="NE" depart="97" color="1,0,0" departSpeed="8.000000"/>
+    <vehicle id="WE_200" type="typeCar" route="WE" depart="98" departSpeed="8.000000"/>
+    <vehicle id="EW_201" type="typeCar" route="EW" depart="98" departSpeed="8.000000"/>
+    <vehicle id="NE_202" type="typeCar" route="NE" depart="99" color="1,0,0" departSpeed="8.000000"/>
+</routes>
