@@ -304,7 +304,7 @@ class FirstComeFirstServe(object):
                 # take the min of the two speeds as this will then be safe
                 speed = min(delaySpeed, gapSpeed)
 
-                speeds[car] = speed + speed * random.randrange(-1,1) / 100
+                speeds[car] = speed + random.uniform(-0.01,0.01)
                 pad = self.pad
 
                 # loop through each point on the car's orbit and update its occupancy time
