@@ -9,7 +9,7 @@ import sys
 import optparse
 import random
 import json
-
+import argparse
 
 import numpy as np
 
@@ -229,6 +229,191 @@ class FirstComeFirstServe(object):
     def setTurnList(self, turnList):
         self.turnList = turnList
 
+    ##########################
+    # function to control the cars for the next time step
+    # input
+    #  - cars: the dictionary of cars from the junction subscription
+    #          includes the lane position, road id, route id, and speed for each car.
+    #  - step: the current simulation time step
+    #
+    # output
+    #  - speeds: a dictionary of cars and the speeds they should be set to
+    #  - modes : a dictionary of cars and the driving function speed modes they should be set to
+    def controlNextStep(self, cars, step):
+        if not cars:
+            return {}, {}
+
+        speeds = {}
+        modes = {}
+        # loop through the cars we are currently controlling 
+        for car in cars:
+
+            # if the car has passed into the intersection and we have not processed it as exited 
+            # then set it back to full speed and normal car following mode and mark it as exited
+            if cars[car][tc.VAR_ROAD_ID] not in self.inRoads and car not in self.exitedIDs:
+                speeds[car] = self.topSpeed
+                self.exitedIDs += [car]
+                modes[car] = 31
+            # if the car is on the roads going into the intersection and has not been processed 
+            # find its correct speed and mark it as processed
+            if cars[car][tc.VAR_ROAD_ID] in self.inRoads and car not in self.processedIDs:
+                self.processedIDs += [car]
+                modes[car] = 6
+                # calculate the distance from the car to the intersection
+                dist = self.roadDist - cars[car][tc.VAR_LANEPOSITION] - self.intersectionStart
+                path = self.pathTable[cars[car][tc.VAR_ROUTE_ID]]
+                intersectionSpeed = self.intersectionSpeedTable[cars[car][tc.VAR_ROUTE_ID]]
+
+                # loop through all of the points in the car's orbit and their linear 
+                # distances to find the necessary delay for the car
+                maxDelay = 0
+                for point, intersectionDist in path:
+                    # calculate the time to the point always going the speed limit
+                    timeToPoint = dist / self.topSpeed + intersectionDist / intersectionSpeed
+                    extraDelay = 0
+
+                    #################################
+                    # How to add extra padding for certain combinations of turns going through a point
+                    # e.g if the last car turned left and the next car is turning right
+                    # have the next car wait an extra 2 seconds
+                    # "L" - left turn, "R" - right turn, "S" - straight 
+                    # using the expression below as a template put the first turn of the combination in the 
+                    # comparison on the left and the second in the comparison on the right and the extra 
+                    # amount of padding you want as `extraDelay`
+                    # the example above would become 
+                    #
+                    # if self.pointLast[point] == "L" and self.turnList[cars[car][tc.VAR_ROUTE_ID]] == "R":
+                    #     extraDelay = 2
+
+                    # find the required delay given the time to point and the last time it was occupied
+                    # and take the running max
+                    maxDelay = max(self.pointTimes[point] - step - timeToPoint + extraDelay, maxDelay)
+
+                # calculate the speed such that when the car arrives at the intersection it has 
+                # implemented the needed delay
+                delaySpeed = dist / (dist / self.topSpeed + maxDelay)
+
+                # if there is a car in front of the given car in the same lane calculate the 
+                # max speed such that when the car in front clears the intersection the current 
+                # car has a 7.5 meter safety gap (can set to value other than 7.5)
+                gapSpeed = self.topSpeed
+                if self.pointTimes[path[0][0]] - step > 0:
+                    gapSpeed = (dist - 7.5) / (self.pointTimes[path[0][0]] - step)
+
+                # take the min of the two speeds as this will then be safe
+                speed = min(delaySpeed, gapSpeed)
+
+                speeds[car] = speed
+                pad = self.pad
+
+                # loop through each point on the car's orbit and update its occupancy time
+                for point, intersectionDist in path:
+
+                    # if the car must accelerate after it gets to the intersection find the time to the 
+                    # point taking into account acceleration otherwise assume constant speed
+                    if speed < intersectionSpeed:
+                        intersectionTime = (-speed + (speed**2 + 2*intersectionDist*ACCEL)**0.5)/ ACCEL
+                    else:
+                        intersectionTime = intersectionDist / intersectionSpeed
+                    timeToPoint = dist / speed + intersectionTime + pad + step
+
+                    # update point data
+                    self.pointTimes[point] = timeToPoint
+                    self.pointLast[point] = self.turnList[cars[car][tc.VAR_ROUTE_ID]]
+
+        return speeds, modes
+
+    ####################
+    # method to reset the instance after a run of the simulation
+    def reset(self):
+        self.pointTimes = list(self.initPointTimes)
+        self.pointLast = list(self.initPointLast)
+        self.processedIDs = []
+        self.exitedIDs = []
+
+
+########################
+# a class that implements the latency-resilient tracking
+# based on the first come first serve intersection control 
+# algorithm
+class LRTracking(object):
+
+    def __init__(self, radius, pad, topSpeed):
+
+        # the radius of traffic that the algorithm controls
+        self.radius = radius
+
+        # the list of times that each intersection point 
+        # between orbits was last occupied
+        self.pointTimes = None
+        # store the initial to reset after simulation runs
+        self.initPointTimes = None
+
+        # a dictionary of the points crossed and linear 
+        # distance to those points (as tuples) for each orbit
+        self.pathTable = None
+
+        # the desired time between cars passing through the same point
+        self.pad = pad
+        # top speed of cars on the road
+        self.topSpeed = topSpeed
+        # list to store cars processed by the system
+        self.processedIDs = []
+        # list to store cars that have passed through the intersection
+        self.exitedIDs = []
+        # store the roads entering the intersection
+        self.inRoads = []
+        # the length of the roads - MUST agree with the actual length
+        # from the network file
+        self.roadDist = None
+
+        # store the turning direction of the last car to 
+        # pass through each point
+        self.pointLast = None
+        # store the initial to reset after simulation runs
+        self.initPointLast = None
+
+        # the distance from the end of the road at which the 
+        # intersection starts - MUST agree with the network file
+        self.intersectionStart = None
+        # dictionary of the max speeds allowed on each orbit
+        # MUST agree with the network file
+        self.intersectionSpeedTable = None
+        # dictionary of the linear distances of each orbit
+        # MUST agree with the network file
+        self.intersectionDistTable = None
+        # dictionary of what type of turn each route makes
+        self.turnList = None
+
+    def setInroads(self, inRoads):
+        self.inRoads = inRoads
+
+    def setRoadDist(self, roadDist):
+        self.roadDist = roadDist
+
+    def setPointTimes(self, pointTimes):
+        self.pointTimes = pointTimes
+        self.initPointTimes = list(pointTimes)
+
+    def setPointLast(self, pointLast):
+        self.pointLast = pointLast
+        self.initPointLast = list(pointLast)
+
+    def setPathTable(self, pathTable):
+        self.pathTable = pathTable
+
+    def setIntersectionStart(self, intersectionStart):
+        self.intersectionStart = intersectionStart
+
+    def setIntersectionSpeedTable(self, intersectionSpeedTable):
+        self.intersectionSpeedTable = intersectionSpeedTable
+
+    def setIntersectionDistTable(self, intersectionDistTable):
+        self.intersectionDistTable = intersectionDistTable
+
+    def setTurnList(self, turnList):
+        self.turnList = turnList
+
 
     ##########################
     # function to control the cars for the next time step
@@ -304,7 +489,8 @@ class FirstComeFirstServe(object):
                 # take the min of the two speeds as this will then be safe
                 speed = min(delaySpeed, gapSpeed)
 
-                speeds[car] = speed + random.uniform(-0.01,0.01)
+                speeds[car] = speed
+
                 pad = self.pad
 
                 # loop through each point on the car's orbit and update its occupancy time
@@ -331,8 +517,6 @@ class FirstComeFirstServe(object):
         self.pointLast = list(self.initPointLast)
         self.processedIDs = []
         self.exitedIDs = []
-
-
 
 
 ########################
@@ -543,16 +727,33 @@ def run(algo, dataName=""):
     step = 0
     # subscribe to get data from the intersection up to the radius of the control algorithm
     traci.junction.subscribeContext("c", tc.CMD_GET_VEHICLE_VARIABLE, algo.radius, [tc.VAR_LANEPOSITION, tc.VAR_ROAD_ID, tc.VAR_ROUTE_ID, tc.VAR_SPEED])
-    if CUSTOM_FOLLOW:
+    if params["CUSTOM_FOLLOW"]:
         initCars = {}
     # main loop while there are active cars
     while traci.simulation.getMinExpectedNumber() > 0:
 
         # if we are using a custom car following model when new cars spawn
         # we turn off the default car following model and add them to the cars we are tracking
-        if CUSTOM_FOLLOW:
+        if params["CUSTOM_FOLLOW"]:
             allCars = traci.vehicle.getIDList()
+
+            ## Alwaays track one car
+            # if len(allCars) > 0:
+                # print(traci.vehicle.getLeader(allCars[0]))
+                # print("current-gap: " + str(traci.vehicle.getMinGap(allCars[0])))
+                # print("current-speed: " + str(traci.vehicle.getSpeed(allCars[0])))
+
             for car in allCars:
+                
+                ## Add random speed (move to drive).
+                traci.vehicle.setSpeed(car, traci.vehicle.getSpeed(car) + random.uniform(-0.15, 0.15))
+
+                ## Parameters fpr safety constraint, maybe added to cmd arguments later (move to drive).
+                d = 2
+                beta = 0.05
+                traci.vehicle.setMinGap(car, d + beta * traci.vehicle.getSpeed(car))
+                ## print("Supposed min gap: " + str(d + beta * traci.vehicle.getSpeed(car)))
+
                 if car not in initCars:
                     traci.vehicle.setSpeedMode(car, 0)
                     initCars[car] = {"targetSpeed": SPEED, "speedMode": 31}
@@ -565,7 +766,7 @@ def run(algo, dataName=""):
 
         # if we are not using a custom car following model then 
         # use SUMO to update the speeds and speed modes
-        if not CUSTOM_FOLLOW:
+        if not params["CUSTOM_FOLLOW"]:
             for car in modes:
                 traci.vehicle.setSpeedMode(car, modes[car])
             
@@ -575,7 +776,7 @@ def run(algo, dataName=""):
         # if we are using a custom car following model then update the 
         # target speeds and modes of the cars and then apply our custom 
         # driving function to each of the cars
-        if CUSTOM_FOLLOW:
+        if params["CUSTOM_FOLLOW"]:
             for car in modes:
                 initCars[car]["speedMode"] = modes[car]
             for car in control:
@@ -597,6 +798,9 @@ def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--nogui", action="store_true",
                          default=False, help="run the commandline version of sumo")
+    optParser.add_option("--algo", type=str, help="control algorithm for the intersectino", default="FCFS")
+    optParser.add_option('--cf', help="boolean to use the custom car following model", default=False)
+
     options, args = optParser.parse_args()
     return options
 
@@ -805,11 +1009,14 @@ if __name__ == "__main__":
     # the options are FCFS for orbit-based first come first serve
     # Q for queuing, and anything else for unsupervised
     # NB: see also CONF_PATH
-    ALGO = "FCFS"
+    ## ALGO = "FCFS"
+
     # boolean to use repeatedParameterSweepTurning or repeatedParameterSweep
     TURNING = True
     # boolean to use the custom car following model
-    CUSTOM_FOLLOW = False
+    # CUSTOM_FOLLOW = False
+
+
 
 # #########################
 # global values - all must agree with network file
@@ -831,6 +1038,7 @@ if __name__ == "__main__":
 # #########################
 
     # save the parameters to a JSON metadata file
+
     params =  {
         "RADIUS": RADIUS,
         "PAD": PAD,
@@ -840,9 +1048,9 @@ if __name__ == "__main__":
         "INCREMENTS": INCREMENTS,
         "REPS": REPS,
         "GENCARS": GENCARS,
-        "ALGO": ALGO,
+        "ALGO": options.algo,
         "TURNING": TURNING,
-        "CUSTOM_FOLLOW": CUSTOM_FOLLOW
+        "CUSTOM_FOLLOW": options.cf
     }
     json.dump( params, open( DATA_FOLDER+"/params.json", 'w' ) )
 
@@ -851,7 +1059,7 @@ if __name__ == "__main__":
     # and some data about the network (see network info doc)
     # and run the correct set of simulations
 
-    if ALGO == "Q":
+    if params["ALGO"] == "Q":
         print("stat")
         algo = Queuing(RADIUS, SPEED)
         algo.setRoadDist(roadDist)
@@ -859,7 +1067,7 @@ if __name__ == "__main__":
         algo.setNSRoads(NSRoads)
         algo.setIntersectionStart(7.20)
 
-    elif ALGO == "FCFS":
+    elif params["ALGO"] == "FCFS":
         algo = FirstComeFirstServe(RADIUS, PAD, SPEED)
         algo.setRoadDist(roadDist)
         algo.setInroads(inRoads)
@@ -949,6 +1157,98 @@ if __name__ == "__main__":
         }
 
         algo.setTurnList(turnList)
+
+    elif params["ALGO"] == "LR":
+        algo = LRTracking(RADIUS, PAD, SPEED)
+        algo.setRoadDist(roadDist)
+        algo.setInroads(inRoads)
+
+        algo.setPointTimes([0]*24)
+
+        algo.setPointLast([None]*24)
+
+        pathTable = {
+                        "EW": [(8, 0), (7, 5.6), (6, 6.3), (5, 8.1), (4, 8.8), (3, 14.4)],
+                        "EN": [(8, 0), (1, 9.03)],
+                        "ES": [(8, 0), (12, 4.62), (14, 6.3), (18, 7.14), (21, 8.82), (22, 13.44)],
+
+                        "WE": [(15, 0), (16, 5.6), (17, 6.3), (18, 8.1), (19, 8.8), (20, 14.4)],
+                        "WS": [(15, 0), (22, 9.03)],
+                        "WN": [(15, 0), (11, 4.62), (9, 6.3), (5, 7.14), (2, 8.82), (1, 13.44)],
+
+                        "NS": [(0, 0), (4, 5.6), (9, 6.3), (13, 8.1), (16, 8.8), (22, 14.4)],
+                        "NW": [(0, 0), (3, 9.03)],
+                        "NE": [(0, 0), (2, 4.62), (6, 6.3), (10, 7.14), (12, 8.82), (20, 13.44)],
+
+                        "SN": [(23, 0), (19, 5.6), (14, 6.3), (10, 8.1), (7, 8.8), (1, 14.4)],
+                        "SE": [(23, 0), (20, 9.03)],
+                        "SW": [(23, 0), (21, 4.62), (17, 6.3), (13, 7.14), (11, 8.82), (3, 13.44)]
+        }
+
+        algo.setPathTable(pathTable)
+
+        algo.setIntersectionStart(7.20)
+
+        speedTable = {
+                        "EW": SPEED,
+                        "WE": SPEED,
+                        "NS": SPEED,
+                        "SN": SPEED,
+
+                        "EN": min(6.51, SPEED),
+                        "WS": min(6.51, SPEED),
+                        "NW": min(6.51, SPEED),
+                        "SE": min(6.51, SPEED),
+
+                        "ES": min(7.8, SPEED),
+                        "WN": min(7.8, SPEED),
+                        "NE": min(7.8, SPEED),
+                        "SW": min(7.8, SPEED)
+
+        }
+
+        algo.setIntersectionSpeedTable(speedTable)
+
+        distTable = {
+                        "EW": 14.4,
+                        "WE": 14.4,
+                        "NS": 14.4,
+                        "SN": 14.4,
+
+                        "EN": 9.03,
+                        "WS": 9.03,
+                        "NW": 9.03,
+                        "SE": 9.03,
+
+                        "ES": 13.44,
+                        "WN": 13.44,
+                        "NE": 13.44,
+                        "SW": 13.44
+
+        }
+
+        algo.setIntersectionDistTable(distTable)
+
+        turnList = {
+                        "EW": "S",
+                        "WE": "S",
+                        "NS": "S",
+                        "SN": "S",
+
+                        "EN": "R",
+                        "WS": "R",
+                        "NW": "R",
+                        "SE": "R",
+
+                        "ES": "L",
+                        "WN": "L",
+                        "NE": "L",
+                        "SW": "L"
+
+        }
+
+        algo.setTurnList(turnList)
+
 
     else:
         algo = Unsupervised()
