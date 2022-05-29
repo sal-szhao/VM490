@@ -433,11 +433,10 @@ class LRTracking(object):
         modes = {}
         # loop through the cars we are currently controlling 
         for car in cars:
-
             # if the car has passed into the intersection and we have not processed it as exited 
             # then set it back to full speed and normal car following mode and mark it as exited
             if cars[car][tc.VAR_ROAD_ID] not in self.inRoads and car not in self.exitedIDs:
-                speeds[car] = self.topSpeed
+                speeds[car] = self.topSpeed*0.8
                 self.exitedIDs += [car]
                 modes[car] = 31
             # if the car is on the roads going into the intersection and has not been processed 
@@ -446,6 +445,7 @@ class LRTracking(object):
                 self.processedIDs += [car]
                 modes[car] = 6
                 # calculate the distance from the car to the intersection
+            if cars[car][tc.VAR_ROAD_ID] in self.inRoads and car in self.processedIDs:
                 dist = self.roadDist - cars[car][tc.VAR_LANEPOSITION] - self.intersectionStart
                 path = self.pathTable[cars[car][tc.VAR_ROUTE_ID]]
                 intersectionSpeed = self.intersectionSpeedTable[cars[car][tc.VAR_ROUTE_ID]]
@@ -455,7 +455,7 @@ class LRTracking(object):
                 maxDelay = 0
                 for point, intersectionDist in path:
                     # calculate the time to the point always going the speed limit
-                    timeToPoint = dist / self.topSpeed + intersectionDist / intersectionSpeed
+                    timeToPoint = dist / (self.topSpeed*0.8) + intersectionDist / intersectionSpeed
                     extraDelay = 0
 
                     #################################
@@ -477,19 +477,21 @@ class LRTracking(object):
 
                 # calculate the speed such that when the car arrives at the intersection it has 
                 # implemented the needed delay
-                delaySpeed = dist / (dist / self.topSpeed + maxDelay)
+                now_speed=traci.vehicle.getSpeed(car)
+                delaySpeed = now_speed-maxDelay*self.topSpeed*0.8/STEP_SIZE/STEP_SIZE-2*(now_speed-self.topSpeed*0.8)/STEP_SIZE
+                #     dist / (dist / self.topSpeed + maxDelay)
 
                 # if there is a car in front of the given car in the same lane calculate the 
                 # max speed such that when the car in front clears the intersection the current 
                 # car has a 7.5 meter safety gap (can set to value other than 7.5)
-                gapSpeed = self.topSpeed
+                gapSpeed = self.topSpeed*0.8
                 if self.pointTimes[path[0][0]] - step > 0:
                     gapSpeed = (dist - 7.5) / (self.pointTimes[path[0][0]] - step)
 
                 # take the min of the two speeds as this will then be safe
                 speed = min(delaySpeed, gapSpeed)
 
-                speeds[car] = speed
+                speeds[car] = speed+ random.uniform(-0.15, 0.15)
 
                 pad = self.pad
 
@@ -746,7 +748,7 @@ def run(algo, dataName=""):
             for car in allCars:
                 
                 ## Add random speed (move to drive).
-                traci.vehicle.setSpeed(car, traci.vehicle.getSpeed(car) + random.uniform(-0.15, 0.15))
+                traci.vehicle.setSpeed(car, traci.vehicle.getSpeed(car) + random.uniform(-0.5, 0.5))
 
                 ## Parameters fpr safety constraint, maybe added to cmd arguments later (move to drive).
                 d = 2
@@ -767,10 +769,14 @@ def run(algo, dataName=""):
         # if we are not using a custom car following model then 
         # use SUMO to update the speeds and speed modes
         if not params["CUSTOM_FOLLOW"]:
+            
             for car in modes:
                 traci.vehicle.setSpeedMode(car, modes[car])
             
             for car in control:
+                d = 2
+                beta = 0.05
+                traci.vehicle.setMinGap(car, d + beta * traci.vehicle.getSpeed(car))
                 traci.vehicle.setSpeed(car, control[car])
 
         # if we are using a custom car following model then update the 
@@ -798,7 +804,7 @@ def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("--nogui", action="store_true",
                          default=False, help="run the commandline version of sumo")
-    optParser.add_option("--algo", type=str, help="control algorithm for the intersectino", default="FCFS")
+    optParser.add_option("--algo", type=str, help="control algorithm for the intersectino", default="LR")
     optParser.add_option('--cf', help="boolean to use the custom car following model", default=False)
 
     options, args = optParser.parse_args()
@@ -982,7 +988,7 @@ if __name__ == "__main__":
 # simulation parameters
 # #########################
     # the radius of control of the intersection control algorithm
-    RADIUS = 250
+    RADIUS = 99999
     # the padding used by the intersection control algorithm
     # (only applies for FCFS)
     PAD = 2.0
