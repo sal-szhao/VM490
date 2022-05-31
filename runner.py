@@ -87,7 +87,7 @@ def generate_routefile(probs, speed, N, accel, deccel):
 
         # loop through the desired number of timesteps
         for i in range(N):
-
+            '''
             # randomly sample each route probability to see
             # if a car appears and if so write it to the xml file
             if random.uniform(0, 1) < pWE:
@@ -141,6 +141,65 @@ def generate_routefile(probs, speed, N, accel, deccel):
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             if random.uniform(0, 1) < pSW:
+                print('    <vehicle id="SW_%i" type="typeCar" route="SW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            '''
+
+            # Generate one vehicle in one direction one by one.
+            # randomly sample each route probability to see
+            # if a car appears and if so write it to the xml file
+            if i % 24 == 0:
+                print('    <vehicle id="WE_%i" type="typeCar" route="WE" depart="%i" departSpeed="%f"/>' % (
+                    vehNr, i, speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 8:
+                print('    <vehicle id="WN_%i" type="typeCar" route="WN" depart="%i" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 16:
+                print('    <vehicle id="WS_%i" type="typeCar" route="WS" depart="%i" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+
+
+            elif i % 24 == 2:
+                print('    <vehicle id="EW_%i" type="typeCar" route="EW" depart="%i" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 10:
+                print('    <vehicle id="EN_%i" type="typeCar" route="EN" depart="%i" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 18:
+                print('    <vehicle id="ES_%i" type="typeCar" route="ES" depart="%i" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+
+
+            elif i % 24 == 20:
+                print('    <vehicle id="NS_%i" type="typeCar" route="NS" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 4:
+                print('    <vehicle id="NE_%i" type="typeCar" route="NE" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 12:
+                print('    <vehicle id="NW_%i" type="typeCar" route="NW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+
+
+            elif i % 24 == 6:
+                print('    <vehicle id="SN_%i" type="typeCar" route="SN" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 22:
+                print('    <vehicle id="SE_%i" type="typeCar" route="SE" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                    vehNr, i,  speed), file=routes)
+                vehNr += 1
+            elif i % 24 == 14:
                 print('    <vehicle id="SW_%i" type="typeCar" route="SW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
@@ -264,6 +323,7 @@ class FirstComeFirstServe(object):
                 path = self.pathTable[cars[car][tc.VAR_ROUTE_ID]]
                 intersectionSpeed = self.intersectionSpeedTable[cars[car][tc.VAR_ROUTE_ID]]
 
+
                 # loop through all of the points in the car's orbit and their linear 
                 # distances to find the necessary delay for the car
                 maxDelay = 0
@@ -385,6 +445,13 @@ class LRTracking(object):
         # dictionary of what type of turn each route makes
         self.turnList = None
 
+        # dictionary of time cars are driven
+        self.driveTime = {}
+        # dictionary of delay time for the cars
+        self.delayTime = {} 
+        # reference speed of the car
+        self.refSpeed = self.topSpeed * 0.8
+
     def setInroads(self, inRoads):
         self.inRoads = inRoads
 
@@ -427,16 +494,64 @@ class LRTracking(object):
     #  - modes : a dictionary of cars and the driving function speed modes they should be set to
     def controlNextStep(self, cars, step):
         if not cars:
+            init_steps = {}  ## used for recording the initial time step when the car is generated.
             return {}, {}
 
         speeds = {}
         modes = {}
+
         # loop through the cars we are currently controlling 
         for car in cars:
+            # Update the reference distance for each car each time step
+            # Here we take the reference speed as 0.8 * topSpeed
+            if car not in self.driveTime.keys():
+                self.driveTime[car] = 0
+                self.delayTime[car] = 0
+            else:
+                self.driveTime[car] += STEP_SIZE
+
+
+            ## Alwaays track one car
+            # allCars = traci.vehicle.getIDList()
+            if car == list(cars.keys())[0]:
+                # print(traci.vehicle.getLeader(allCars[0]))
+                # print("current-gap: " + str(traci.vehicle.getMinGap(allCars[0])))
+                # print("current-speed: " + str(traci.vehicle.getSpeed(car)))
+                # print("ref: " + str(self.refDist[car]))
+                # print("dist: " + str(traci.vehicle.getDistance(car)))
+                # print("drive time: " + str(self.driveTime[car]))
+                # print("delay time: " + str(self.delayTime[car]))
+                pass
+
+            # Always consider the delaySpeed of the cars at all timeSteps.
+            curr_speed = traci.vehicle.getSpeed(car)
+
+            # Redefine the delaySpeed, the delaySpeed should depend on reference speed and position.
+            # Total time spent should be STEP_SIZE * STEP
+            # refPos = self.refSpeed * (self.driveTime[car] - self.delayTime[car])
+            refPos = self.refSpeed * self.driveTime[car]
+            refAccl = -(traci.vehicle.getDistance(car) - refPos) / (STEP_SIZE ** 2) - 2 * (curr_speed - self.refSpeed) / STEP_SIZE
+
+            # refAccel should not exceed the maximum accleration.
+            if refAccl > ACCEL:
+                refAccl = ACCEL
+            elif refAccl < -DECCEL:
+                refAccl = -DECCEL
+
+            delaySpeed = curr_speed + refAccl * STEP_SIZE
+            speeds[car] = delaySpeed
+            # print("now speed:" + str(curr_speed))
+            # print("top_speed:" + str(self.topSpeed))
+            # print("first term 1: " + str(traci.vehicle.getDistance(car)))
+            # print("first term 2: " + str(refPos))
+            # print("second term: " + str(2 * (curr_speed - self.refSpeed) / STEP_SIZE))
+            print("tracking error: " + str(traci.vehicle.getDistance(car) - refPos))
+            #     dist / (dist / self.topSpeed + maxDelay)
+
             # if the car has passed into the intersection and we have not processed it as exited 
             # then set it back to full speed and normal car following mode and mark it as exited
             if cars[car][tc.VAR_ROAD_ID] not in self.inRoads and car not in self.exitedIDs:
-                speeds[car] = self.topSpeed*0.8
+                speeds[car] = self.refSpeed
                 self.exitedIDs += [car]
                 modes[car] = 31
             # if the car is on the roads going into the intersection and has not been processed 
@@ -445,7 +560,6 @@ class LRTracking(object):
                 self.processedIDs += [car]
                 modes[car] = 6
                 # calculate the distance from the car to the intersection
-            if cars[car][tc.VAR_ROAD_ID] in self.inRoads and car in self.processedIDs:
                 dist = self.roadDist - cars[car][tc.VAR_LANEPOSITION] - self.intersectionStart
                 path = self.pathTable[cars[car][tc.VAR_ROUTE_ID]]
                 intersectionSpeed = self.intersectionSpeedTable[cars[car][tc.VAR_ROUTE_ID]]
@@ -455,7 +569,7 @@ class LRTracking(object):
                 maxDelay = 0
                 for point, intersectionDist in path:
                     # calculate the time to the point always going the speed limit
-                    timeToPoint = dist / (self.topSpeed*0.8) + intersectionDist / intersectionSpeed
+                    timeToPoint = dist / self.refSpeed + intersectionDist / intersectionSpeed
                     extraDelay = 0
 
                     #################################
@@ -474,24 +588,22 @@ class LRTracking(object):
                     # find the required delay given the time to point and the last time it was occupied
                     # and take the running max
                     maxDelay = max(self.pointTimes[point] - step - timeToPoint + extraDelay, maxDelay)
+                    self.delayTime[car] = maxDelay
 
-                # calculate the speed such that when the car arrives at the intersection it has 
-                # implemented the needed delay
-                now_speed=traci.vehicle.getSpeed(car)
-                delaySpeed = now_speed-maxDelay*self.topSpeed*0.8/STEP_SIZE/STEP_SIZE-2*(now_speed-self.topSpeed*0.8)/STEP_SIZE
-                #     dist / (dist / self.topSpeed + maxDelay)
 
                 # if there is a car in front of the given car in the same lane calculate the 
                 # max speed such that when the car in front clears the intersection the current 
                 # car has a 7.5 meter safety gap (can set to value other than 7.5)
-                gapSpeed = self.topSpeed*0.8
+                d = 2
+                beta = 0.2
+                safety_gap = d + beta * traci.vehicle.getSpeed(car)
+
+                gapSpeed = self.refSpeed
                 if self.pointTimes[path[0][0]] - step > 0:
-                    gapSpeed = (dist - 7.5) / (self.pointTimes[path[0][0]] - step)
+                    gapSpeed = (dist - safety_gap) / (self.pointTimes[path[0][0]] - step)
 
                 # take the min of the two speeds as this will then be safe
-                speed = min(delaySpeed, gapSpeed)
-
-                speeds[car] = speed+ random.uniform(-0.15, 0.15)
+                speeds[car] = min(speeds[car], gapSpeed)
 
                 pad = self.pad
 
@@ -500,15 +612,21 @@ class LRTracking(object):
 
                     # if the car must accelerate after it gets to the intersection find the time to the 
                     # point taking into account acceleration otherwise assume constant speed
-                    if speed < intersectionSpeed:
-                        intersectionTime = (-speed + (speed**2 + 2*intersectionDist*ACCEL)**0.5)/ ACCEL
+                    if speeds[car] < intersectionSpeed:
+                        intersectionTime = (-speeds[car] + (speeds[car]**2 + 2*intersectionDist*ACCEL)**0.5) / ACCEL
                     else:
                         intersectionTime = intersectionDist / intersectionSpeed
-                    timeToPoint = dist / speed + intersectionTime + pad + step
+                    timeToPoint = dist / speeds[car] + intersectionTime + pad + step
+                    #print("first" + str(dist/speed))
+                    #print(intersectionTime)
 
                     # update point data
                     self.pointTimes[point] = timeToPoint
                     self.pointLast[point] = self.turnList[cars[car][tc.VAR_ROUTE_ID]]
+                
+            # Add random acceleration to the car.
+            speeds[car] += random.uniform(-0.05, 0.05)
+            print(speeds[car])
 
         return speeds, modes
 
@@ -539,7 +657,7 @@ class Queuing(object):
         # the length of the roads - MUST agree with the actual length
         # from the network file
         self.roadDist = None
-        # the distance from the end of the road at which the 
+        # the distance from the end of the road to the position where 
         # intersection starts - MUST agree with the network file
         self.intersectionStart = None
 
@@ -738,12 +856,6 @@ def run(algo, dataName=""):
         # we turn off the default car following model and add them to the cars we are tracking
         if params["CUSTOM_FOLLOW"]:
             allCars = traci.vehicle.getIDList()
-
-            ## Alwaays track one car
-            # if len(allCars) > 0:
-                # print(traci.vehicle.getLeader(allCars[0]))
-                # print("current-gap: " + str(traci.vehicle.getMinGap(allCars[0])))
-                # print("current-speed: " + str(traci.vehicle.getSpeed(allCars[0])))
 
             for car in allCars:
                 
@@ -993,7 +1105,7 @@ if __name__ == "__main__":
     # (only applies for FCFS)
     PAD = 2.0
     # the max speed for the cars
-    SPEED = 8
+    SPEED = 10
     # the max acceleration for the cars
     ACCEL = 0.8
     # the max deceleration for the cars
