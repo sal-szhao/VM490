@@ -150,57 +150,57 @@ def generate_routefile(probs, speed, N, accel, deccel):
             # randomly sample each route probability to see
             # if a car appears and if so write it to the xml file
             if i % 24 == 0:
-                print('    <vehicle id="WE_%i" type="typeCar" route="WE" depart="%i" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="WE" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i, speed), file=routes)
                 vehNr += 1
             elif i % 24 == 8:
-                print('    <vehicle id="WN_%i" type="typeCar" route="WN" depart="%i" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="WN" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             elif i % 24 == 16:
-                print('    <vehicle id="WS_%i" type="typeCar" route="WS" depart="%i" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="WS" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
 
 
             elif i % 24 == 2:
-                print('    <vehicle id="EW_%i" type="typeCar" route="EW" depart="%i" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="EW" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             elif i % 24 == 10:
-                print('    <vehicle id="EN_%i" type="typeCar" route="EN" depart="%i" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="EN" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             elif i % 24 == 18:
-                print('    <vehicle id="ES_%i" type="typeCar" route="ES" depart="%i" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="ES" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
 
 
             elif i % 24 == 20:
-                print('    <vehicle id="NS_%i" type="typeCar" route="NS" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="NS" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             elif i % 24 == 4:
-                print('    <vehicle id="NE_%i" type="typeCar" route="NE" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="NE" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             elif i % 24 == 12:
-                print('    <vehicle id="NW_%i" type="typeCar" route="NW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="NW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
 
 
             elif i % 24 == 6:
-                print('    <vehicle id="SN_%i" type="typeCar" route="SN" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="SN" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             elif i % 24 == 22:
-                print('    <vehicle id="SE_%i" type="typeCar" route="SE" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="SE" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
             elif i % 24 == 14:
-                print('    <vehicle id="SW_%i" type="typeCar" route="SW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
+                print('    <vehicle id="%i" type="typeCar" route="SW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
 
@@ -499,7 +499,8 @@ class LRTracking(object):
 
         speeds = {}
         modes = {}
-
+        index=0
+        index_drive_time={}
         # loop through the cars we are currently controlling 
         for car in cars:
             # Update the reference distance for each car each time step
@@ -509,8 +510,7 @@ class LRTracking(object):
                 self.delayTime[car] = 0
             else:
                 self.driveTime[car] += STEP_SIZE
-
-
+            index_drive_time[index]=self.driveTime[car]
             ## Alwaays track one car
             # allCars = traci.vehicle.getIDList()
             if car == list(cars.keys())[0]:
@@ -529,7 +529,10 @@ class LRTracking(object):
             # Redefine the delaySpeed, the delaySpeed should depend on reference speed and position.
             # Total time spent should be STEP_SIZE * STEP
             # refPos = self.refSpeed * (self.driveTime[car] - self.delayTime[car])
-            refPos = self.refSpeed * self.driveTime[car]
+            if index!=0 :
+                refPos=self.refSpeed * (index_drive_time[index-1]-1.5)
+            else:
+                refPos = self.refSpeed * self.driveTime[car]
             refAccl = -(traci.vehicle.getDistance(car) - refPos) / (STEP_SIZE ** 2) - 2 * (curr_speed - self.refSpeed) / STEP_SIZE
 
             # refAccel should not exceed the maximum accleration.
@@ -540,14 +543,18 @@ class LRTracking(object):
 
             delaySpeed = curr_speed + refAccl * STEP_SIZE
             speeds[car] = delaySpeed
-            # print("now speed:" + str(curr_speed))
-            # print("top_speed:" + str(self.topSpeed))
-            # print("first term 1: " + str(traci.vehicle.getDistance(car)))
-            # print("first term 2: " + str(refPos))
-            # print("second term: " + str(2 * (curr_speed - self.refSpeed) / STEP_SIZE))
-            print("tracking error: " + str(traci.vehicle.getDistance(car) - refPos))
+            if index==2:
+                print("front car time:"+ str(index_drive_time[index-1]))
+                print("now car drive time: " + str(self.driveTime[car]))
+                print("accl: "+ str(refAccl))
+                print("now speed:" + str(curr_speed))
+                print("top_speed:" + str(self.topSpeed))
+                print("first term 1: " + str(traci.vehicle.getDistance(car)))
+                print("first term 2: " + str(refPos))
+                print("second term: " + str(2 * (curr_speed - self.refSpeed) / STEP_SIZE))
+                print("tracking error: " + str(traci.vehicle.getDistance(car) - refPos))
             #     dist / (dist / self.topSpeed + maxDelay)
-
+            index+=1
             # if the car has passed into the intersection and we have not processed it as exited 
             # then set it back to full speed and normal car following mode and mark it as exited
             if cars[car][tc.VAR_ROAD_ID] not in self.inRoads and car not in self.exitedIDs:
@@ -603,7 +610,7 @@ class LRTracking(object):
                     gapSpeed = (dist - safety_gap) / (self.pointTimes[path[0][0]] - step)
 
                 # take the min of the two speeds as this will then be safe
-                speeds[car] = min(speeds[car], gapSpeed)
+                #speeds[car] = min(speeds[car], gapSpeed)
 
                 pad = self.pad
 
@@ -627,7 +634,6 @@ class LRTracking(object):
             # Add random acceleration to the car.
             speeds[car] += random.uniform(-0.05, 0.05)
             print(speeds[car])
-
         return speeds, modes
 
     ####################
@@ -860,7 +866,7 @@ def run(algo, dataName=""):
             for car in allCars:
                 
                 ## Add random speed (move to drive).
-                traci.vehicle.setSpeed(car, traci.vehicle.getSpeed(car) + random.uniform(-0.5, 0.5))
+                #traci.vehicle.setSpeed(car, traci.vehicle.getSpeed(car) + random.uniform(-0.5, 0.5))
 
                 ## Parameters fpr safety constraint, maybe added to cmd arguments later (move to drive).
                 d = 2
