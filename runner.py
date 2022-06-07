@@ -217,8 +217,12 @@ def generate_routefile(probs, speed, N, accel, deccel):
                     sc_pre,vehNr, i,  speed), file=routes)
                 vehNr += 1
         '''
-            print('    <vehicle id="%c%i" type="typeCar" route="%s" depart="%f" departSpeed="%f"/>' % (
-                sc_pre, vehNr, route_dir, totalGenTime, speed), file=routes)
+            if route_dir[0] == "S" or route_dir[0] == "N":
+                print('    <vehicle id="%c%i" type="typeCar" route="%s" depart="%f" departSpeed="%f" color="1,0,0"/>' % (
+                    sc_pre, vehNr, route_dir, totalGenTime, speed), file=routes)
+            else:
+                print('    <vehicle id="%c%i" type="typeCar" route="%s" depart="%f" departSpeed="%f"/>' % (
+                    sc_pre, vehNr, route_dir, totalGenTime, speed), file=routes)
             vehNr += 1
             totalGenTime += currTime
         print("</routes>", file=routes)

@@ -1,16 +1,16 @@
-***Starting server on port 36045 ***
-Loading net-file from 'net.net.xml' ... done (2ms).
+***Starting server on port 60287 ***
+Loading net-file from 'net.net.xml' ... done (1ms).
 Loading done.
 Simulation started with time: 0.00
-Simulation ended at time: 194.40
+Simulation ended at time: 151.60
 Performance: 
- Duration: 23.67s
- TraCI-Duration: 18.36s
- Real time factor: 8.21189
- UPS: 3487.770878
+ Duration: 18.42s
+ TraCI-Duration: 12.48s
+ Real time factor: 8.23108
+ UPS: 2799.381040
 Vehicles: 
- Inserted: 86 (Loaded: 90)
- Running: 86
+ Inserted: 67 (Loaded: 91)
+ Running: 67
  Waiting: 0
 Statistics (avg):
  RouteLength: 0.00
