@@ -84,6 +84,9 @@ def generate_routefile(probs, speed, N, accel, deccel):
 
         """ % (accel, deccel, speed),file=routes)
         vehNr = 0
+        minGenGap = 1.5
+        maxGenGap = 3.0
+        totalGenTime = 0
 
         # loop through the desired number of timesteps
         for i in range(N):
@@ -146,9 +149,19 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 vehNr += 1
             '''
             sc_pre=chr(65+int(vehNr/10))
+
+            # Choose random directions
+            directions = ["W", "E", "S", "N"]
+            first_chr = random.choice(directions)
+            directions.remove(first_chr)
+            second_char = random.choice(directions)
+            route_dir = first_chr + second_char
+            
+            currTime = random.uniform(minGenGap, maxGenGap)
             # Generate one vehicle in one direction one by one.
             # randomly sample each route probability to see
             # if a car appears and if so write it to the xml file
+            '''
             if i % 24 == 0:
                 print('    <vehicle id="%c%i" type="typeCar" route="WE" depart="%i" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i, speed), file=routes)
@@ -203,7 +216,11 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="%c%i" type="typeCar" route="SW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i,  speed), file=routes)
                 vehNr += 1
-
+        '''
+            print('    <vehicle id="%c%i" type="typeCar" route="%s" depart="%f" departSpeed="%f"/>' % (
+                sc_pre, vehNr, route_dir, totalGenTime, speed), file=routes)
+            vehNr += 1
+            totalGenTime += currTime
         print("</routes>", file=routes)
 
 ########################
