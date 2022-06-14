@@ -472,6 +472,10 @@ class LRTracking(object):
         self.delayTime = {} 
         # reference speed of the car
         self.refSpeed = self.topSpeed * 0.8
+        # extra delay time of the cars regarding different routes
+        self.extraDelay = {}
+        # safe speed of the car, minimum of delaySpeed and gapSpeed
+        self.safeSpeed = {}
 
     def setInroads(self, inRoads):
         self.inRoads = inRoads
@@ -547,7 +551,7 @@ class LRTracking(object):
             # Always consider the delaySpeed of the cars at all timeSteps.
             curr_speed = traci.vehicle.getSpeed(car)
 
-            # Redefine the delaySpeed, the delaySpeed should depend on reference speed and position.
+            # Define the reference speed.
             # Total time spent should be STEP_SIZE * STEP
             # refPos = self.refSpeed * (self.driveTime[car] - self.delayTime[car])
             if index!=0 and ref_drive_time[index-1]>1.5 and self.driveTime[car]!=0:
@@ -563,8 +567,8 @@ class LRTracking(object):
             elif refAccl < -DECCEL:
                 refAccl = -DECCEL
 
-            delaySpeed = curr_speed + refAccl * STEP_SIZE
-            speeds[car] = delaySpeed
+            refSpeed = curr_speed + refAccl * STEP_SIZE
+
             if index>0:
                 print(index)
                 print("front car time:"+ str(ref_drive_time[index-1]))
@@ -601,7 +605,7 @@ class LRTracking(object):
                 for point, intersectionDist in path:
                     # calculate the time to the point always going the speed limit
                     timeToPoint = dist / self.refSpeed + intersectionDist / intersectionSpeed
-                    extraDelay = 0
+                    self.extraDelay[car] = 0
 
                     #################################
                     # How to add extra padding for certain combinations of turns going through a point
@@ -613,28 +617,31 @@ class LRTracking(object):
                     # amount of padding you want as `extraDelay`
                     # the example above would become 
                     #
-                    # if self.pointLast[point] == "L" and self.turnList[cars[car][tc.VAR_ROUTE_ID]] == "R":
-                    #     extraDelay = 2
+                    if self.pointLast[point] == "L" and self.turnList[cars[car][tc.VAR_ROUTE_ID]] == "R":
+                        self.extraDelay[car] = 2
+                    if self.pointLast[point] == "R" and self.turnList[cars[car][tc.VAR_ROUTE_ID]] == "L":
+                        self.extraDelay[car] = 2
+                    if self.pointLast[point] == "L" and self.turnList[cars[car][tc.VAR_ROUTE_ID]] == "S":
+                        self.extraDelay[car] = 2
+                    if self.pointLast[point] == "R" and self.turnList[cars[car][tc.VAR_ROUTE_ID]] == "S":
+                        self.extraDelay[car] = 2
 
                     # find the required delay given the time to point and the last time it was occupied
                     # and take the running max
-                    maxDelay = max(self.pointTimes[point] - step - timeToPoint + extraDelay, maxDelay)
+                    maxDelay = max(self.pointTimes[point] - step - timeToPoint + self.extraDelay[car], maxDelay)
                     self.delayTime[car] = maxDelay
 
+                delaySpeed = dist / (dist / self.topSpeed + maxDelay)
 
-                # if there is a car in front of the given car in the same lane calculate the 
-                # max speed such that when the car in front clears the intersection the current 
-                # car has a 7.5 meter safety gap (can set to value other than 7.5)
-                d = 2
-                beta = 0.2
-                safety_gap = d + beta * traci.vehicle.getSpeed(car)
-
+                safety_time = 1.5
+                safety_gap = self.topSpeed * safety_time
                 gapSpeed = self.refSpeed
                 if self.pointTimes[path[0][0]] - step > 0:
                     gapSpeed = (dist - safety_gap) / (self.pointTimes[path[0][0]] - step)
 
                 # take the min of the two speeds as this will then be safe
-                #speeds[car] = min(speeds[car], gapSpeed)
+                self.safeSpeed[car] = min(delaySpeed, gapSpeed)
+                speeds[car] = self.safeSpeed[car]
 
                 pad = self.pad
 
@@ -654,7 +661,9 @@ class LRTracking(object):
                     # update point data
                     self.pointTimes[point] = timeToPoint
                     self.pointLast[point] = self.turnList[cars[car][tc.VAR_ROUTE_ID]]
-                
+  
+            # Take the minimum of the safe speed and reference speed.
+            speeds[car] = min(self.safeSpeed[car], refSpeed)
             # Add random acceleration to the car.
             speeds[car] += random.uniform(-0.05, 0.05)
         return speeds, modes

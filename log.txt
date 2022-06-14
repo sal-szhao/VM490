@@ -1,16 +1,18 @@
-***Starting server on port 60287 ***
+***Starting server on port 44949 ***
 Loading net-file from 'net.net.xml' ... done (1ms).
 Loading done.
 Simulation started with time: 0.00
-Simulation ended at time: 151.60
+Error: tcpip::Socket::recvAndCheck @ recv: peer shutdown
+Quitting (on error).
+Simulation ended at time: 0.20
 Performance: 
- Duration: 18.42s
- TraCI-Duration: 12.48s
- Real time factor: 8.23108
- UPS: 2799.381040
+ Duration: 54.11s
+ TraCI-Duration: 0.00s
+ Real time factor: 0.0036959
+ UPS: 0.036959
 Vehicles: 
- Inserted: 67 (Loaded: 91)
- Running: 67
+ Inserted: 1 (Loaded: 2)
+ Running: 1
  Waiting: 0
 Statistics (avg):
  RouteLength: 0.00
