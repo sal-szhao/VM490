@@ -476,6 +476,9 @@ class LRTracking(object):
         self.extraDelay = {}
         # safe speed of the car, minimum of delaySpeed and gapSpeed
         self.safeSpeed = {}
+        
+        # dictionary of direction pair stored in Int.
+        self.intDir = {}
 
     def setInroads(self, inRoads):
         self.inRoads = inRoads
@@ -528,6 +531,21 @@ class LRTracking(object):
         ref_drive_time={}
         # loop through the cars we are currently controlling 
         for car in cars:
+            # Transfer the driving direction from string to int.
+            car_index = int(car[1:])
+            if car_index not in self.intDir.keys():
+                strDir = cars[car][tc.VAR_ROUTE_ID]
+                dirFrom = dirTo = 0
+                if strDir[0] == "N": dirFrom = 0
+                if strDir[0] == "E": dirFrom = 1
+                if strDir[0] == "S": dirFrom = 2
+                if strDir[0] == "W": dirFrom = 3
+                if strDir[1] == "N": dirTo = 0
+                if strDir[1] == "E": dirTo = 1
+                if strDir[1] == "S": dirTo = 2
+                if strDir[1] == "W": dirTo = 3
+                self.intDir[car_index] = (dirFrom, dirTo)
+
             # Update the reference distance for each car each time step
             # Here we take the reference speed as 0.8 * topSpeed
             if car not in self.driveTime.keys():
@@ -581,6 +599,7 @@ class LRTracking(object):
                 print("second term: " + str(2 * (curr_speed - self.refSpeed) / STEP_SIZE))
                 print("tracking error: " + str(traci.vehicle.getDistance(car) - refPos))
                 print(" ")
+                print(self.intDir)
             #     dist / (dist / self.topSpeed + maxDelay)
             index+=1
             # if the car has passed into the intersection and we have not processed it as exited 
