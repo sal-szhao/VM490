@@ -64,24 +64,18 @@ def generate_routefile(probs, speed, N, accel, deccel):
     with open("routes.rou.xml", "w") as routes:
         print("""<routes>
         <vType id="typeCar" accel="%f" decel="%f" sigma="0.0" length="5" minGap="2.5" speedDev="0" maxSpeed="%f" guiShape="passenger"/>
-
-
         <route id="WE" edges="wc ce" />
         <route id="WN" edges="wc cn" />
         <route id="WS" edges="wc cs" />
-
         <route id="EW" edges="ec cw" />
         <route id="EN" edges="ec cn" />
         <route id="ES" edges="ec cs" />
-
         <route id="NS" edges="nc cs" />
         <route id="NE" edges="nc ce" />
         <route id="NW" edges="nc cw" />
-
         <route id="SN" edges="sc cn" />
         <route id="SE" edges="sc ce" />
         <route id="SW" edges="sc cw" />
-
         """ % (accel, deccel, speed),file=routes)
         vehNr = 0
         minGenGap = 1.5
@@ -105,8 +99,6 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="WS_%i" type="typeCar" route="WS" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
-
-
             if random.uniform(0, 1) < pEW:
                 print('    <vehicle id="EW_%i" type="typeCar" route="EW" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
@@ -119,8 +111,6 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="ES_%i" type="typeCar" route="ES" depart="%i" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
-
-
             if random.uniform(0, 1) < pNS:
                 print('    <vehicle id="NS_%i" type="typeCar" route="NS" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
@@ -133,8 +123,6 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="NW_%i" type="typeCar" route="NW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
                 vehNr += 1
-
-
             if random.uniform(0, 1) < pSN:
                 print('    <vehicle id="SN_%i" type="typeCar" route="SN" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     vehNr, i,  speed), file=routes)
@@ -174,8 +162,6 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="%c%i" type="typeCar" route="WS" depart="%i" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i,  speed), file=routes)
                 vehNr += 1
-
-
             elif i % 24 == 2:
                 print('    <vehicle id="%c%i" type="typeCar" route="EW" depart="%i" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i,  speed), file=routes)
@@ -188,8 +174,6 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="%c%i" type="typeCar" route="ES" depart="%i" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i,  speed), file=routes)
                 vehNr += 1
-
-
             elif i % 24 == 20:
                 print('    <vehicle id="%c%i" type="typeCar" route="NS" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i,  speed), file=routes)
@@ -202,8 +186,6 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="%c%i" type="typeCar" route="NW" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i,  speed), file=routes)
                 vehNr += 1
-
-
             elif i % 24 == 6:
                 print('    <vehicle id="%c%i" type="typeCar" route="SN" depart="%i" color="1,0,0" departSpeed="%f"/>' % (
                     sc_pre,vehNr, i,  speed), file=routes)
@@ -480,6 +462,8 @@ class LRTracking(object):
         # dictionary of direction pair stored in Int.
         self.intDir = {}
 
+        self.ref_drive_time={}
+
     def setInroads(self, inRoads):
         self.inRoads = inRoads
 
@@ -528,7 +512,6 @@ class LRTracking(object):
         speeds = {}
         modes = {}
         index=0
-        ref_drive_time={}
         # loop through the cars we are currently controlling 
         for car in cars:
             # Transfer the driving direction from string to int.
@@ -568,15 +551,48 @@ class LRTracking(object):
 
             # Always consider the delaySpeed of the cars at all timeSteps.
             curr_speed = traci.vehicle.getSpeed(car)
-
+            newDelay=0
+            rotateVal=4-self.intDir[index][0]
+            ref_rot_dir={}
+            ref_rot_dir[0]={}
+            ref_rot_dir[1]={}
+            print(self.intDir[0][0])
             # Define the reference speed.
             # Total time spent should be STEP_SIZE * STEP
             # refPos = self.refSpeed * (self.driveTime[car] - self.delayTime[car])
-            if index!=0 and ref_drive_time[index-1]>1.5 and self.driveTime[car]!=0:
-                ref_drive_time[index]=ref_drive_time[index-1]-1.5
+            if self.driveTime[car]>150:
+                self.ref_drive_time[index] += STEP_SIZE
+            elif index!=0 and self.ref_drive_time[index-1]>1.5 and self.driveTime[car]!=0:
+                ref_rot_dir[0][0]=(self.intDir[index-1][0]+rotateVal)%4
+                ref_rot_dir[0][1]=(self.intDir[index-1][1]+rotateVal)%4
+                ref_rot_dir[1][0]=(self.intDir[index][0]+rotateVal)%4
+                ref_rot_dir[1][1]=(self.intDir[index][1]+rotateVal)%4
+                if ref_rot_dir[0][1]==ref_rot_dir[1][1]:
+                    newDelay=1.5
+                elif self.intDir[index-1][0]-self.intDir[index-1][1]==1 or self.intDir[index-1][0]-self.intDir[index-1][1]==-3:
+                    newDelay=1
+                elif self.intDir[index-1][0]-self.intDir[index-1][1]==-1 or self.intDir[index-1][0]-self.intDir[index-1][1]==3:
+                    newDelay=1.5
+                elif ref_rot_dir[0][0]==ref_rot_dir[1][1] and ref_rot_dir[0][1]==ref_rot_dir[1][0]:
+                    if (ref_rot_dir[0][1]-ref_rot_dir[0][0])%2==0:
+                        newDelay=0.3
+                    else:
+                        newDelay=1
+                else :
+                    newDelay=1.5
+                # j=index-1
+                # while j>-1:
+                #     if self.intDir[index][0]==self.intDir[j][0]:
+                #         newDelay=max(newDelay,1)
+                #         break
+                #     j-=1
+                if index>1:
+                    self.ref_drive_time[index]=min(self.ref_drive_time[index-1]-newDelay,self.ref_drive_time[index-2]-2)
+                else:
+                    self.ref_drive_time[index]=self.ref_drive_time[index-1]-newDelay
             else:
-                ref_drive_time[index]=self.driveTime[car]
-            refPos = self.refSpeed * ref_drive_time[index]
+                self.ref_drive_time[index]=self.driveTime[car]
+            refPos = self.refSpeed * self.ref_drive_time[index]
             refAccl = -(traci.vehicle.getDistance(car) - refPos) / (STEP_SIZE ** 2) - 2 * (curr_speed - self.refSpeed) / STEP_SIZE
 
             # refAccel should not exceed the maximum accleration.
@@ -587,9 +603,9 @@ class LRTracking(object):
 
             refSpeed = curr_speed + refAccl * STEP_SIZE
 
-            if index>0:
+            if index==1:
                 print(index)
-                print("front car time:"+ str(ref_drive_time[index-1]))
+                print("front car time:"+ str(self.ref_drive_time[index-1]))
                 print("now car drive time: " + str(self.driveTime[car]))
                 print("accl: "+ str(refAccl))
                 print("now speed:" + str(curr_speed))
@@ -599,7 +615,7 @@ class LRTracking(object):
                 print("second term: " + str(2 * (curr_speed - self.refSpeed) / STEP_SIZE))
                 print("tracking error: " + str(traci.vehicle.getDistance(car) - refPos))
                 print(" ")
-                print(self.intDir)
+                #print(self.intDir)
             #     dist / (dist / self.topSpeed + maxDelay)
             index+=1
             # if the car has passed into the intersection and we have not processed it as exited 
@@ -682,7 +698,7 @@ class LRTracking(object):
                     self.pointLast[point] = self.turnList[cars[car][tc.VAR_ROUTE_ID]]
   
             # Take the minimum of the safe speed and reference speed.
-            speeds[car] = min(self.safeSpeed[car], refSpeed)
+            speeds[car] = refSpeed
             # Add random acceleration to the car.
             speeds[car] += random.uniform(-0.05, 0.05)
         return speeds, modes
