@@ -1,16 +1,15 @@
-***Starting server on port 52495 ***
+***Starting server on port 53059 ***
 Loading net-file from 'net.net.xml' ... done (1ms).
 Loading done.
-Simulation started with time: 0.00
-Simulation ended at time: 51.30
+Simulation ended at time: 0.00
 Performance: 
- Duration: 3.15s
- TraCI-Duration: 1.77s
- Real time factor: 16.2805
- UPS: 1966.359886
+ Duration: 0.30s
+ TraCI-Duration: 0.00s
+ Real time factor: 0
+ UPS: 0.000000
 Vehicles: 
- Inserted: 24 (Loaded: 93)
- Running: 24
+ Inserted: 0 (Loaded: 2)
+ Running: 0
  Waiting: 0
 Statistics (avg):
  RouteLength: 0.00

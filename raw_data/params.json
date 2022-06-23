@@ -1,1 +1,1 @@
-{"RADIUS": 99999, "PAD": 2.0, "SPEED": 10, "ACCEL": 0.8, "DECCEL": 4.5, "INCREMENTS": 2, "REPS": 2, "GENCARS": 100, "ALGO": "LR", "TURNING": true, "CUSTOM_FOLLOW": false}
+{"RADIUS": 99999, "PAD": 2.0, "SPEED": 10, "ACCEL": 0.8, "DECCEL": 4.5, "INCREMENTS": 2, "REPS": 2, "GENCARS": "10", "ALGO": "LR", "TURNING": true, "CUSTOM_FOLLOW": false, "interval": 1.5, "maxRandAcc": 0.05}

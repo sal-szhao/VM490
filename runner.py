@@ -82,6 +82,10 @@ def generate_routefile(probs, speed, N, accel, deccel):
         maxGenGap = 3.0
         totalGenTime = 0
 
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        print(N)
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+
         # loop through the desired number of timesteps
         for i in range(N):
             '''
@@ -512,6 +516,7 @@ class LRTracking(object):
         speeds = {}
         modes = {}
         index=0
+        current_default_interval = float(params['interval'])
         # loop through the cars we are currently controlling 
         for car in cars:
             # Transfer the driving direction from string to int.
@@ -556,30 +561,30 @@ class LRTracking(object):
             ref_rot_dir={}
             ref_rot_dir[0]={}
             ref_rot_dir[1]={}
-            print(self.intDir[0][0])
+            #print(self.intDir[0][0])
             # Define the reference speed.
             # Total time spent should be STEP_SIZE * STEP
             # refPos = self.refSpeed * (self.driveTime[car] - self.delayTime[car])
             if self.driveTime[car]>150:
                 self.ref_drive_time[index] += STEP_SIZE
-            elif index!=0 and self.ref_drive_time[index-1]>1.5 and self.driveTime[car]!=0:
+            elif index!=0 and self.ref_drive_time[index-1]>current_default_interval and self.driveTime[car]!=0:
                 ref_rot_dir[0][0]=(self.intDir[index-1][0]+rotateVal)%4
                 ref_rot_dir[0][1]=(self.intDir[index-1][1]+rotateVal)%4
                 ref_rot_dir[1][0]=(self.intDir[index][0]+rotateVal)%4
                 ref_rot_dir[1][1]=(self.intDir[index][1]+rotateVal)%4
                 if ref_rot_dir[0][1]==ref_rot_dir[1][1]:
-                    newDelay=1.5
+                    newDelay=current_default_interval
                 elif self.intDir[index-1][0]-self.intDir[index-1][1]==1 or self.intDir[index-1][0]-self.intDir[index-1][1]==-3:
-                    newDelay=1
+                    newDelay=current_default_interval * 2 / 3
                 elif self.intDir[index-1][0]-self.intDir[index-1][1]==-1 or self.intDir[index-1][0]-self.intDir[index-1][1]==3:
-                    newDelay=1.5
+                    newDelay=current_default_interval
                 elif ref_rot_dir[0][0]==ref_rot_dir[1][1] and ref_rot_dir[0][1]==ref_rot_dir[1][0]:
                     if (ref_rot_dir[0][1]-ref_rot_dir[0][0])%2==0:
-                        newDelay=0.3
+                        newDelay=current_default_interval / 5
                     else:
-                        newDelay=1
+                        newDelay=current_default_interval * 2 / 3
                 else :
-                    newDelay=1.5
+                    newDelay=current_default_interval
                 # j=index-1
                 # while j>-1:
                 #     if self.intDir[index][0]==self.intDir[j][0]:
@@ -603,6 +608,7 @@ class LRTracking(object):
 
             refSpeed = curr_speed + refAccl * STEP_SIZE
 
+            '''
             if index==1:
                 print(index)
                 print("front car time:"+ str(self.ref_drive_time[index-1]))
@@ -614,10 +620,13 @@ class LRTracking(object):
                 print("first term 2: " + str(refPos))
                 print("second term: " + str(2 * (curr_speed - self.refSpeed) / STEP_SIZE))
                 print("tracking error: " + str(traci.vehicle.getDistance(car) - refPos))
+                print("number of cars: " + str(len(cars)))
                 print(" ")
                 #print(self.intDir)
             #     dist / (dist / self.topSpeed + maxDelay)
             index+=1
+            '''
+
             # if the car has passed into the intersection and we have not processed it as exited 
             # then set it back to full speed and normal car following mode and mark it as exited
             if cars[car][tc.VAR_ROAD_ID] not in self.inRoads and car not in self.exitedIDs:
@@ -700,7 +709,7 @@ class LRTracking(object):
             # Take the minimum of the safe speed and reference speed.
             speeds[car] = refSpeed
             # Add random acceleration to the car.
-            speeds[car] += random.uniform(-0.05, 0.05)
+            speeds[car] += random.uniform(-float(params["maxRandAcc"]), float(params["maxRandAcc"]))
         return speeds, modes
 
     ####################
@@ -991,6 +1000,10 @@ def get_options():
                          default=False, help="run the commandline version of sumo")
     optParser.add_option("--algo", type=str, help="control algorithm for the intersectino", default="LR")
     optParser.add_option('--cf', help="boolean to use the custom car following model", default=False)
+    optParser.add_option('--interval', help="the default interval between cars passing the intersections", default=1.5)
+    optParser.add_option('--maxRandAcc', help="the maximum value of the random acceleration", default=0.05)
+    optParser.add_option('--genCarNum', help="the totla numbers of cars that need to be generated", default=100)
+
 
     options, args = optParser.parse_args()
     return options
@@ -1208,7 +1221,6 @@ if __name__ == "__main__":
     # CUSTOM_FOLLOW = False
 
 
-
 # #########################
 # global values - all must agree with network file
 # #########################
@@ -1238,10 +1250,12 @@ if __name__ == "__main__":
         "DECCEL": DECCEL,
         "INCREMENTS": INCREMENTS,
         "REPS": REPS,
-        "GENCARS": GENCARS,
+        "GENCARS": options.genCarNum,
         "ALGO": options.algo,
         "TURNING": TURNING,
-        "CUSTOM_FOLLOW": options.cf
+        "CUSTOM_FOLLOW": options.cf,
+        "interval": options.interval,
+        "maxRandAcc": options.maxRandAcc,
     }
     json.dump( params, open( DATA_FOLDER+"/params.json", 'w' ) )
 
@@ -1446,9 +1460,9 @@ if __name__ == "__main__":
 
 
     if not TURNING:
-        repeatedParameterSweep(algo, INCREMENTS, REPS, GENCARS)
+        repeatedParameterSweep(algo, INCREMENTS, REPS, int(params["GENCARS"]))
     if TURNING:
-        repeatedParameterSweepTurning(algo, INCREMENTS, REPS, GENCARS)
+        repeatedParameterSweepTurning(algo, INCREMENTS, REPS, int(params["GENCARS"]))
 
 
     
