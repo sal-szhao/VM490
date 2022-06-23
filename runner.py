@@ -42,6 +42,17 @@ import traci.constants as tc
 # output
 #  - the routefile written to `routes.rou.xml`
 
+def generate_initial(generate_time_array,N,min_gap,T):
+    sum=0
+    random_pre={}
+    generate_time_array[0]=0
+    for i in range(1,N):
+        random_pre[i]=random.uniform(0,1)
+        sum+=random_pre[i]
+    for i in range(1,N):
+        generate_time_array[i]=random_pre[i]/sum*T+min_gap+generate_time_array[i-1]
+    generate_time_array[N]=N*min_gap+T-min_gap
+
 def generate_routefile(probs, speed, N, accel, deccel):
     # make tests reproducible by uncommenting the below
     # you can pick whatever seed you want 
@@ -81,7 +92,8 @@ def generate_routefile(probs, speed, N, accel, deccel):
         minGenGap = 1.5
         maxGenGap = 3.0
         totalGenTime = 0
-
+        generate_time_array={}
+        generate_initial(generate_time_array,N,minGenGap,100)
         # loop through the desired number of timesteps
         for i in range(N):
             '''
@@ -144,8 +156,8 @@ def generate_routefile(probs, speed, N, accel, deccel):
             directions.remove(first_chr)
             second_char = random.choice(directions)
             route_dir = first_chr + second_char
-            
-            currTime = random.uniform(minGenGap, maxGenGap)
+
+            totalGenTime = generate_time_array[i]
             # Generate one vehicle in one direction one by one.
             # randomly sample each route probability to see
             # if a car appears and if so write it to the xml file
@@ -206,7 +218,8 @@ def generate_routefile(probs, speed, N, accel, deccel):
                 print('    <vehicle id="%c%i" type="typeCar" route="%s" depart="%f" departSpeed="%f"/>' % (
                     sc_pre, vehNr, route_dir, totalGenTime, speed), file=routes)
             vehNr += 1
-            totalGenTime += currTime
+            
+            # totalGenTime += currTime
         print("</routes>", file=routes)
 
 ########################
@@ -996,7 +1009,7 @@ def get_options():
     optParser.add_option("--algo", type=str, help="control algorithm for the intersectino", default="LR")
     optParser.add_option('--cf', help="boolean to use the custom car following model", default=False)
     optParser.add_option('--interval', help="the default interval between cars passing the intersections", default=1.5)
-    optParser.add_option('--maxRandAcc', help="the maximum value of the random acceleration", default=0.05)
+    optParser.add_option('--maxRandAcc', help="the maximum value of the random acceleration", default=0.04)
     optParser.add_option('--genCarNum', help="the totla numbers of cars that need to be generated", default=100)
 
 
