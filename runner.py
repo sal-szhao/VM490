@@ -216,10 +216,10 @@ def generate_routefile(probs, speed, N, accel, deccel):
         '''
             if route_dir[0] == "S" or route_dir[0] == "N":
                 print('    <vehicle id="%c%i" type="typeCar" route="%s" depart="%f" departSpeed="%f" color="1,0,0"/>' % (
-                    sc_pre, vehNr, route_dir, totalGenTime, speed), file=routes)
+                    sc_pre, vehNr, route_dir, totalGenTime, speed*0.8), file=routes)
             else:
                 print('    <vehicle id="%c%i" type="typeCar" route="%s" depart="%f" departSpeed="%f"/>' % (
-                    sc_pre, vehNr, route_dir, totalGenTime, speed), file=routes)
+                    sc_pre, vehNr, route_dir, totalGenTime, speed*0.8), file=routes)
             vehNr += 1
             
             # totalGenTime += currTime
@@ -527,7 +527,8 @@ class LRTracking(object):
         speeds = {}
         modes = {}
         index=0
-        current_default_interval = float(params("interval"))
+        length_of_road=992
+        current_default_interval = 1.2
         # loop through the cars we are currently controlling 
         for car in cars:
             # Transfer the driving direction from string to int.
@@ -575,9 +576,9 @@ class LRTracking(object):
             if traci.vehicle.getDistance(car)>1200:
                 self.ref_drive_time[index] += STEP_SIZE
             elif index!=0  and self.driveTime[car]!=0:
-                if 1:
+                if 0:
                     newDelay=current_default_interval
-                elif 0:
+                elif 1:
                     if self.intDir[index-1][1]==self.intDir[index][1]:
                         newDelay=current_default_interval
                     elif self.intDir[index-1][0]-self.intDir[index-1][1]==1 or self.intDir[index-1][0]-self.intDir[index-1][1]==-3:
@@ -604,7 +605,18 @@ class LRTracking(object):
                     self.ref_drive_time[index]=self.ref_drive_time[index-1]-newDelay
             else:
                 self.ref_drive_time[index]=self.driveTime[car]
+            curr_pos=traci.vehicle.getDistance(car)
             refPos = self.refSpeed * self.ref_drive_time[index]
+            if curr_pos<length_of_road:
+                dis_to_int=length_of_road-curr_pos
+                max_time=dis_to_int/self.refSpeed*2
+                min_time=dis_to_int/self.topSpeed
+                ref_to_int_time=(length_of_road-refPos)/self.refSpeed
+                if ref_to_int_time<min_time:
+                    self.ref_drive_time[index]=(length_of_road-min_time*self.refSpeed)/self.refSpeed
+                if ref_to_int_time>max_time:
+                    self.ref_drive_time[index]=(length_of_road-max_time*self.refSpeed)/self.refSpeed
+            
             refAccl = -(traci.vehicle.getDistance(car) - refPos) / (STEP_SIZE ** 2) - 2 * (curr_speed - self.refSpeed) / STEP_SIZE
 
             # refAccel should not exceed the maximum accleration.
@@ -616,10 +628,11 @@ class LRTracking(object):
             refSpeed = curr_speed + refAccl * STEP_SIZE
             if refSpeed<self.refSpeed*0.5:
                 refSpeed=self.refSpeed*0.5
-
+    
             if index<0:
                 print(index)
-                print("front car time:"+ str(self.ref_drive_time[index-1]))
+                if index>0:
+                    print("front car time:"+ str(self.ref_drive_time[index-1]))
                 print("now car drive time: " + str(self.driveTime[car]))
                 print("accl: "+ str(refAccl))
                 print("now speed:" + str(curr_speed))
