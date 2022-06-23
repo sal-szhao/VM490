@@ -13,14 +13,9 @@
         <route id="SE" edges="sc ce" />
         <route id="SW" edges="sc cw" />
         
-    <vehicle id="A0" type="typeCar" route="EW" depart="0.000000" departSpeed="10.000000"/>
-    <vehicle id="A1" type="typeCar" route="SW" depart="1.764359" departSpeed="10.000000" color="1,0,0"/>
-    <vehicle id="A2" type="typeCar" route="WS" depart="4.606994" departSpeed="10.000000"/>
-    <vehicle id="A3" type="typeCar" route="ES" depart="7.036085" departSpeed="10.000000"/>
-    <vehicle id="A4" type="typeCar" route="SW" depart="8.626408" departSpeed="10.000000" color="1,0,0"/>
-    <vehicle id="A5" type="typeCar" route="SN" depart="11.587463" departSpeed="10.000000" color="1,0,0"/>
-    <vehicle id="A6" type="typeCar" route="ES" depart="14.054789" departSpeed="10.000000"/>
-    <vehicle id="A7" type="typeCar" route="EN" depart="16.256099" departSpeed="10.000000"/>
-    <vehicle id="A8" type="typeCar" route="WS" depart="18.021080" departSpeed="10.000000"/>
-    <vehicle id="A9" type="typeCar" route="NS" depart="19.981670" departSpeed="10.000000" color="1,0,0"/>
+    <vehicle id="A0" type="typeCar" route="NE" depart="0.000000" departSpeed="10.000000" color="1,0,0"/>
+    <vehicle id="A1" type="typeCar" route="WE" depart="2.599741" departSpeed="10.000000"/>
+    <vehicle id="A2" type="typeCar" route="NE" depart="4.846035" departSpeed="10.000000" color="1,0,0"/>
+    <vehicle id="A3" type="typeCar" route="NS" depart="6.894896" departSpeed="10.000000" color="1,0,0"/>
+    <vehicle id="A4" type="typeCar" route="SW" depart="8.856030" departSpeed="10.000000" color="1,0,0"/>
 </routes>

@@ -1,9 +1,9 @@
-***Starting server on port 53059 ***
-Loading net-file from 'net.net.xml' ... done (1ms).
+***Starting server on port 42631 ***
+Loading net-file from 'net.net.xml' ... done (0ms).
 Loading done.
 Simulation ended at time: 0.00
 Performance: 
- Duration: 0.30s
+ Duration: 2.16s
  TraCI-Duration: 0.00s
  Real time factor: 0
  UPS: 0.000000
