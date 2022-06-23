@@ -521,16 +521,15 @@ class LRTracking(object):
         if not cars:
             init_steps = {}  ## used for recording the initial time step when the car is generated.
             return {}, {}
-
         speeds = {}
         modes = {}
         index=0
-        current_default_interval = float(params['interval'])
+        current_default_interval = 1.5
         # loop through the cars we are currently controlling 
         for car in cars:
             # Transfer the driving direction from string to int.
-            car_index = int(car[1:])
-            if car_index not in self.intDir.keys():
+            # car_index = int(car[1:])
+            if index not in self.intDir.keys():
                 strDir = cars[car][tc.VAR_ROUTE_ID]
                 dirFrom = dirTo = 0
                 if strDir[0] == "N": dirFrom = 0
@@ -541,7 +540,7 @@ class LRTracking(object):
                 if strDir[1] == "E": dirTo = 1
                 if strDir[1] == "S": dirTo = 2
                 if strDir[1] == "W": dirTo = 3
-                self.intDir[car_index] = (dirFrom, dirTo)
+                self.intDir[index] = (dirFrom, dirTo)
 
             # Update the reference distance for each car each time step
             # Here we take the reference speed as 0.8 * topSpeed
@@ -566,10 +565,6 @@ class LRTracking(object):
             # Always consider the delaySpeed of the cars at all timeSteps.
             curr_speed = traci.vehicle.getSpeed(car)
             newDelay=0
-            rotateVal=4-self.intDir[index][0]
-            ref_rot_dir={}
-            ref_rot_dir[0]={}
-            ref_rot_dir[1]={}
             #print(self.intDir[0][0])
             # Define the reference speed.
             # Total time spent should be STEP_SIZE * STEP
@@ -577,23 +572,22 @@ class LRTracking(object):
             if self.driveTime[car]>150:
                 self.ref_drive_time[index] += STEP_SIZE
             elif index!=0 and self.ref_drive_time[index-1]>current_default_interval and self.driveTime[car]!=0:
-                ref_rot_dir[0][0]=(self.intDir[index-1][0]+rotateVal)%4
-                ref_rot_dir[0][1]=(self.intDir[index-1][1]+rotateVal)%4
-                ref_rot_dir[1][0]=(self.intDir[index][0]+rotateVal)%4
-                ref_rot_dir[1][1]=(self.intDir[index][1]+rotateVal)%4
-                if ref_rot_dir[0][1]==ref_rot_dir[1][1]:
+                if 1:
                     newDelay=current_default_interval
-                elif self.intDir[index-1][0]-self.intDir[index-1][1]==1 or self.intDir[index-1][0]-self.intDir[index-1][1]==-3:
-                    newDelay=current_default_interval * 2 / 3
-                elif self.intDir[index-1][0]-self.intDir[index-1][1]==-1 or self.intDir[index-1][0]-self.intDir[index-1][1]==3:
-                    newDelay=current_default_interval
-                elif ref_rot_dir[0][0]==ref_rot_dir[1][1] and ref_rot_dir[0][1]==ref_rot_dir[1][0]:
-                    if (ref_rot_dir[0][1]-ref_rot_dir[0][0])%2==0:
-                        newDelay=current_default_interval / 5
-                    else:
-                        newDelay=1
-                else :
-                    newDelay=current_default_interval
+                elif 1==0:
+                    if self.intDir[index-1][1]==self.intDir[index][1]:
+                        newDelay=current_default_interval
+                    elif self.intDir[index-1][0]-self.intDir[index-1][1]==1 or self.intDir[index-1][0]-self.intDir[index-1][1]==-3:
+                        newDelay=current_default_interval * 2 / 3
+                    elif self.intDir[index-1][0]-self.intDir[index-1][1]==-1 or self.intDir[index-1][0]-self.intDir[index-1][1]==3:
+                        newDelay=current_default_interval
+                    elif self.intDir[index-1][0]==self.intDir[index][1] and self.intDir[index-1][1]==self.intDir[index][0]:
+                        if (self.intDir[index-1][1]-self.intDir[index-1][0])%2==0:
+                            newDelay=current_default_interval / 5
+                        else:
+                            newDelay=current_default_interval*2/3
+                    else :
+                        newDelay=current_default_interval
                 # j=index-1
                 # while j>-1:
                 #     if self.intDir[index][0]==self.intDir[j][0]:
@@ -616,7 +610,8 @@ class LRTracking(object):
                 refAccl = -DECCEL
 
             refSpeed = curr_speed + refAccl * STEP_SIZE
-
+            if refSpeed<self.refSpeed*0.5:
+                refSpeed=self.refSpeed*0.5
             
             if index==1:
                 print(index)
