@@ -43,6 +43,7 @@ import traci.constants as tc
 #  - the routefile written to `routes.rou.xml`
 
 def generate_initial(generate_time_array,N,min_gap,T):
+    random.seed(42)
     sum=0
     random_pre={}
     generate_time_array[0]=0
@@ -71,7 +72,7 @@ def generate_routefile(probs, speed, N, accel, deccel):
     pSN = probs["SN"]
     pSE = probs["SE"]
     pSW = probs["SW"]
-
+    last_chr="W"
     with open("routes.rou.xml", "w") as routes:
         print("""<routes>
         <vType id="typeCar" accel="%f" decel="%f" sigma="0.0" length="5" minGap="2.5" speedDev="0" maxSpeed="%f" guiShape="passenger"/>
@@ -89,11 +90,11 @@ def generate_routefile(probs, speed, N, accel, deccel):
         <route id="SW" edges="sc cw" />
         """ % (accel, deccel, speed),file=routes)
         vehNr = 0
-        minGenGap = 1.5
+        minGenGap = 1.2
         maxGenGap = 3.0
         totalGenTime = 0
         generate_time_array={}
-        generate_initial(generate_time_array,N,minGenGap,100)
+        generate_initial(generate_time_array,N,minGenGap,50)
         # loop through the desired number of timesteps
         for i in range(N):
             '''
@@ -152,11 +153,13 @@ def generate_routefile(probs, speed, N, accel, deccel):
 
             # Choose random directions
             directions = ["W", "E", "S", "N"]
+            directions.remove(last_chr)
             first_chr = random.choice(directions)
+            directions = ["W", "E", "S", "N"]
             directions.remove(first_chr)
             second_char = random.choice(directions)
             route_dir = first_chr + second_char
-
+            last_chr=first_chr
             totalGenTime = generate_time_array[i]
             # Generate one vehicle in one direction one by one.
             # randomly sample each route probability to see
@@ -524,7 +527,7 @@ class LRTracking(object):
         speeds = {}
         modes = {}
         index=0
-        current_default_interval = 1.5
+        current_default_interval = float(params("interval"))
         # loop through the cars we are currently controlling 
         for car in cars:
             # Transfer the driving direction from string to int.
@@ -569,12 +572,12 @@ class LRTracking(object):
             # Define the reference speed.
             # Total time spent should be STEP_SIZE * STEP
             # refPos = self.refSpeed * (self.driveTime[car] - self.delayTime[car])
-            if self.driveTime[car]>150:
+            if traci.vehicle.getDistance(car)>1200:
                 self.ref_drive_time[index] += STEP_SIZE
-            elif index!=0 and self.ref_drive_time[index-1]>current_default_interval and self.driveTime[car]!=0:
+            elif index!=0  and self.driveTime[car]!=0:
                 if 1:
                     newDelay=current_default_interval
-                elif 1==0:
+                elif 0:
                     if self.intDir[index-1][1]==self.intDir[index][1]:
                         newDelay=current_default_interval
                     elif self.intDir[index-1][0]-self.intDir[index-1][1]==1 or self.intDir[index-1][0]-self.intDir[index-1][1]==-3:
@@ -595,6 +598,7 @@ class LRTracking(object):
                 #         break
                 #     j-=1
                 if index>1:
+                    # self.ref_drive_time[index]=min(self.ref_drive_time[index-1]-newDelay,self.ref_drive_time[index-2]-2)
                     self.ref_drive_time[index]=min(self.ref_drive_time[index-1]-newDelay,self.ref_drive_time[index-2]-2)
                 else:
                     self.ref_drive_time[index]=self.ref_drive_time[index-1]-newDelay
@@ -612,8 +616,8 @@ class LRTracking(object):
             refSpeed = curr_speed + refAccl * STEP_SIZE
             if refSpeed<self.refSpeed*0.5:
                 refSpeed=self.refSpeed*0.5
-            
-            if index==1:
+
+            if index<0:
                 print(index)
                 print("front car time:"+ str(self.ref_drive_time[index-1]))
                 print("now car drive time: " + str(self.driveTime[car]))
