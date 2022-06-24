@@ -528,7 +528,7 @@ class LRTracking(object):
         modes = {}
         index=0
         length_of_road=992
-        current_default_interval = 1.2
+        current_default_interval = float(params["interval"])
         # loop through the cars we are currently controlling 
         for car in cars:
             # Transfer the driving direction from string to int.
@@ -576,9 +576,9 @@ class LRTracking(object):
             if traci.vehicle.getDistance(car)>1200:
                 self.ref_drive_time[index] += STEP_SIZE
             elif index!=0  and self.driveTime[car]!=0:
-                if 0:
+                if 1:
                     newDelay=current_default_interval
-                elif 1:
+                elif 0:
                     if self.intDir[index-1][1]==self.intDir[index][1]:
                         newDelay=current_default_interval
                     elif self.intDir[index-1][0]-self.intDir[index-1][1]==1 or self.intDir[index-1][0]-self.intDir[index-1][1]==-3:
@@ -1221,7 +1221,7 @@ if __name__ == "__main__":
     INCREMENTS = 2
     # the repetitions used by repeatedParameterSweepTurning or
     # repeatedParameterSweep when running the simulation
-    REPS = 2
+    REPS = 1
     # the number of times steps for which to generate traffic
     # in the routefile
     GENCARS = 100
